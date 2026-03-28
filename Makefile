@@ -35,27 +35,27 @@ ingress:
 	env $(KUBE_ENV) kubectl rollout status deployment/ingress-nginx-controller -n ingress-nginx --timeout=180s
 
 helm-deps:
-	env $(HELM_ENV) helm repo add kedacore https://kedacore.github.io/charts
-	env $(HELM_ENV) helm repo update
-	env $(HELM_ENV) helm dependency build manifest/keda-operator
+	env $(KUBE_ENV) $(HELM_ENV) helm repo add kedacore https://kedacore.github.io/charts
+	env $(KUBE_ENV) $(HELM_ENV) helm repo update
+	env $(KUBE_ENV) $(HELM_ENV) helm dependency build manifest/keda-operator
 
 install-elasticmq:
-	env $(HELM_ENV) helm upgrade --install elasticmq ./manifest/elasticmq
+	env $(KUBE_ENV) $(HELM_ENV) helm upgrade --install elasticmq ./manifest/elasticmq
 
 install-postgresql:
-	env $(HELM_ENV) helm upgrade --install postgresql ./manifest/postgresql
+	env $(KUBE_ENV) $(HELM_ENV) helm upgrade --install postgresql ./manifest/postgresql
 
 install-keda:
-	env $(HELM_ENV) helm upgrade --install keda ./manifest/keda-operator -f manifest/keda-operator/values/develop.yaml -n keda --create-namespace
+	env $(KUBE_ENV) $(HELM_ENV) helm upgrade --install keda ./manifest/keda-operator -f manifest/keda-operator/values/develop.yaml -n keda --create-namespace
 
 install-keda-prod:
-	env $(HELM_ENV) helm upgrade --install keda ./manifest/keda-operator -f manifest/keda-operator/values/production.yaml -n keda --create-namespace
+	env $(KUBE_ENV) $(HELM_ENV) helm upgrade --install keda ./manifest/keda-operator -f manifest/keda-operator/values/production.yaml -n keda --create-namespace
 
 install-enqueue:
-	env $(HELM_ENV) helm upgrade --install enqueue ./manifest/enqueue-app -f manifest/enqueue-app/values/develop.yaml --set image.repository=local/enqueue --set image.tag=$(IMAGE_TAG)
+	env $(KUBE_ENV) $(HELM_ENV) helm upgrade --install enqueue ./manifest/enqueue-app -f manifest/enqueue-app/values/develop.yaml --set image.repository=local/enqueue --set image.tag=$(IMAGE_TAG)
 
 install-dequeue:
-	env $(HELM_ENV) helm upgrade --install dequeue ./manifest/dequeue-app -f manifest/dequeue-app/values/develop.yaml --set image.repository=local/dequeue --set image.tag=$(IMAGE_TAG)
+	env $(KUBE_ENV) $(HELM_ENV) helm upgrade --install dequeue ./manifest/dequeue-app -f manifest/dequeue-app/values/develop.yaml --set image.repository=local/dequeue --set image.tag=$(IMAGE_TAG)
 
 compose-up:
 	env $(DOCKER_ENV) docker compose up -d elasticmq postgresql enqueue
