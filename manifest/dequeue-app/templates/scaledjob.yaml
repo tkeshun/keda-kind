@@ -45,7 +45,9 @@ spec:
         queueURLFromEnv: QUEUE_URL
         queueLength: {{ .Values.queueLength | quote }}
         awsRegion: {{ .Values.awsRegion | quote }}
+        {{- if eq .Values.kedaAuthentication.mode "operator" }}
         identityOwner: operator
+        {{- end }}
         awsEndpoint: {{ .Values.awsEndpoint | quote }}
       authenticationRef:
         name: {{ include "dequeue.fullname" . }}

@@ -1,3 +1,6 @@
 image:
   repository: local/dequeue
   tag: dev
+
+kedaAuthentication:
+  mode: secret

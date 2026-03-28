@@ -15,3 +15,7 @@ pollingInterval: 5
 maxReplicaCount: 5
 successfulJobsHistoryLimit: 2
 failedJobsHistoryLimit: 2
+
+kedaAuthentication:
+  mode: operator
+  podIdentityProvider: aws-eks

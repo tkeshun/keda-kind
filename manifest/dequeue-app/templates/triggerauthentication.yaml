@@ -3,5 +3,17 @@ kind: TriggerAuthentication
 metadata:
   name: {{ include "dequeue.fullname" . }}
 spec:
+  {{- if eq .Values.kedaAuthentication.mode "secret" }}
+  secretTargetRef:
+    - parameter: awsAccessKeyID
+      name: {{ include "dequeue.fullname" . }}-config
+      key: AWS_ACCESS_KEY_ID
+    - parameter: awsSecretAccessKey
+      name: {{ include "dequeue.fullname" . }}-config
+      key: AWS_SECRET_ACCESS_KEY
+  {{- else if eq .Values.kedaAuthentication.mode "operator" }}
   podIdentity:
-    provider: aws-eks
+    provider: {{ .Values.kedaAuthentication.podIdentityProvider | quote }}
+  {{- else }}
+  {{- fail (printf "unsupported kedaAuthentication.mode %q" .Values.kedaAuthentication.mode) }}
+  {{- end }}
