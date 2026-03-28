@@ -87,7 +87,7 @@ make install-dequeue
 
 `enqueue` の deployment を一時停止したい場合は `make enqueue-scale-zero`、再開したい場合は `make enqueue-scale-one` を使います。
 
-`make cluster-clean` は app / DB / KEDA の release だけを削除し、ingress-nginx と kind クラスタ本体は残します。復元する場合は `make build`、`make kind-load`、`make helm-deps` の順に実行してから `make cluster-restore` を使います。
+`make cluster-clean` は app / DB / KEDA の release だけを削除し、ingress-nginx と kind クラスタ本体は残します。イメージや chart 依存関係が未準備なら `make build`、`make kind-load`、`make helm-deps` を実行してから `make cluster-restore` を使うと、local/develop の stack（`install-keda` と app の develop values）を戻せます。
 
 7. 動作確認を行います。
 
