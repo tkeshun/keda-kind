@@ -60,7 +60,7 @@ enqueue-scale-zero:
 enqueue-scale-one:
 	env $(KUBE_ENV) $(HELM_ENV) helm upgrade enqueue ./manifest/enqueue-app -f manifest/enqueue-app/values/develop.yaml --set image.repository=local/enqueue --set image.tag=$(IMAGE_TAG) --set replicaCount=1
 
-install-dequeue:
+install-dequeue: keda-ready
 	env $(KUBE_ENV) $(HELM_ENV) helm upgrade --install dequeue ./manifest/dequeue-app -f manifest/dequeue-app/values/develop.yaml --set image.repository=local/dequeue --set image.tag=$(IMAGE_TAG)
 
 cluster-clean:
@@ -75,7 +75,7 @@ keda-ready:
 	env $(KUBE_ENV) kubectl wait --for=condition=Established crd/scaledjobs.keda.sh --timeout=180s
 	env $(KUBE_ENV) kubectl wait --for=condition=Established crd/triggerauthentications.keda.sh --timeout=180s
 
-cluster-restore: install-elasticmq install-postgresql install-keda keda-ready install-enqueue install-dequeue
+cluster-restore: install-elasticmq install-postgresql install-keda install-enqueue install-dequeue
 
 compose-up:
 	env $(DOCKER_ENV) docker compose up -d elasticmq postgresql enqueue
