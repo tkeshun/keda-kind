@@ -58,7 +58,7 @@ export KUBECONFIG=/home/shun/dev/keda-kind/.cache/kubeconfig
     - [ ] `docker exec keda-kind-control-plane crictl images | grep 'local/enqueue'`
     - [ ] `docker exec keda-kind-control-plane crictl images | grep 'local/dequeue'`
   - [ ] `make helm-deps`
-    - [ ] `test -f manifest/keda-operator/charts/keda-2.17.2.tgz`
+    - [ ] `test -f manifest/keda-operator/charts/keda-2.18.1.tgz`
   - [ ] `make install-elasticmq`
     - [ ] `helm status elasticmq`
     - [ ] `kubectl get deploy elasticmq`
@@ -94,4 +94,7 @@ export KUBECONFIG=/home/shun/dev/keda-kind/.cache/kubeconfig
 
 - sample アプリのコード正本は `sample-app/` 配下にある
 - Helm chart の正本は shared / app ともに `manifest/` 配下にある
+- develop の `dequeue` chart は KEDA scaler も Secret の static credential で ElasticMQ を読む
+- production の `dequeue` scaler は `identityOwner: operator` と `aws-eks` Pod Identity を使う
+- production だけが KEDA Operator の ServiceAccount に EKS Pod Identity Association を必要とする
 - 本ファイルの「検証済み」は、この環境で実行して通過したコマンドだけを記載している
