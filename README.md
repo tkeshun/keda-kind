@@ -85,6 +85,10 @@ make install-enqueue
 make install-dequeue
 ```
 
+`enqueue` の deployment を一時停止したい場合は `make enqueue-scale-zero`、再開したい場合は `make enqueue-scale-one` を使います。
+
+`make cluster-clean` は app / DB / KEDA の release だけを削除し、ingress-nginx と kind クラスタ本体は残します。復元する場合は `make build`、`make kind-load`、`make helm-deps` の順に実行してから `make cluster-restore` を使います。
+
 7. 動作確認を行います。
 
 ```bash
@@ -95,6 +99,7 @@ kubectl logs deploy/enqueue
 kubectl get deploy elasticmq postgresql
 kubectl port-forward svc/postgresql 5432:5432
 psql 'postgres://app:app@127.0.0.1:5432/app?sslmode=disable' -c 'select code, sent_at, stored_at from queue_messages order by id desc limit 10;'
+kubectl exec deploy/postgresql -- psql -U app -d app -c 'select code, sent_at, stored_at from queue_messages order by id desc limit 10;'
 ```
 
 `dequeue` はジョブとして起動するため、キューが空なら pod は残りません。`kubectl get jobs --watch` でジョブ生成を確認できます。KEDA は `keda` namespace に入るため、queue URL と ElasticMQ endpoint は chart 既定値で cluster FQDN を使います。kind の ingress 到達先は `http://127.0.0.1:8080` と `https://127.0.0.1:8443` です。
