@@ -43,6 +43,8 @@ make build
 make kind-create
 ```
 
+repo の `make` target は `KUBECONFIG=$(CURDIR)/.cache/kubeconfig` を使う前提で Helm / kubectl / kind を実行します。default context が別クラスタを向いていても、repo の導線は `kind-keda-kind` を対象にします。
+
 2. ingress-nginx を導入します。
 
 ```bash

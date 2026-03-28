@@ -42,7 +42,7 @@
 ## 残作業
 - 前提
 
-export KUBECONFIG=/home/shun/dev/keda-kind/.cache/kubeconfig
+`export KUBECONFIG=/home/shun/dev/keda-kind/.cache/kubeconfig` は `kubectl` を手で叩くときの shell 上の便宜であり、Makefile の正しさには不要。
 
 - [ ] kind クラスタ上で `make kind-create` からデプロイ完走までを再確認する
   - [ ] `make kind-create`
@@ -79,6 +79,8 @@ export KUBECONFIG=/home/shun/dev/keda-kind/.cache/kubeconfig
     - [ ] `helm status dequeue`
     - [ ] `kubectl get scaledjob dequeue`
     - [ ] `kubectl get triggerauthentication dequeue`
+    - [ ] `kubectl get triggerauthentication dequeue -o yaml`
+      - [ ] `secretTargetRef` が live resource に入っている
 - [ ] kind 上で KEDA のスケーリング動作を確認する
   - [ ] `kubectl get scaledjobs`
   - [ ] `kubectl get jobs --watch`
