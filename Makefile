@@ -9,7 +9,7 @@ DOCKER_ENV = DOCKER_CONFIG=$(CURDIR)/.cache/docker
 HELM_ENV = HELM_CONFIG_HOME=$(CURDIR)/.cache/helm/config HELM_CACHE_HOME=$(CURDIR)/.cache/helm/cache HELM_DATA_HOME=$(CURDIR)/.cache/helm/data
 KUBE_ENV = KUBECONFIG=$(KUBECONFIG_PATH)
 
-.PHONY: test build-enqueue build-dequeue build kind-create kind-load ingress helm-deps install-elasticmq install-postgresql install-keda install-keda-prod install-enqueue install-dequeue compose-up compose-run-dequeue
+.PHONY: test build-enqueue build-dequeue build kind-create kind-load ingress helm-deps install-elasticmq install-postgresql install-keda install-keda-prod install-enqueue install-dequeue cluster-clean cluster-restore enqueue-scale-zero enqueue-scale-one compose-up compose-run-dequeue
 
 test:
 	env $(GOENV) go test ./...
@@ -54,8 +54,23 @@ install-keda-prod:
 install-enqueue:
 	env $(KUBE_ENV) $(HELM_ENV) helm upgrade --install enqueue ./manifest/enqueue-app -f manifest/enqueue-app/values/develop.yaml --set image.repository=local/enqueue --set image.tag=$(IMAGE_TAG)
 
+enqueue-scale-zero:
+	env $(KUBE_ENV) $(HELM_ENV) helm upgrade enqueue ./manifest/enqueue-app -f manifest/enqueue-app/values/develop.yaml --set image.repository=local/enqueue --set image.tag=$(IMAGE_TAG) --set replicaCount=0
+
+enqueue-scale-one:
+	env $(KUBE_ENV) $(HELM_ENV) helm upgrade enqueue ./manifest/enqueue-app -f manifest/enqueue-app/values/develop.yaml --set image.repository=local/enqueue --set image.tag=$(IMAGE_TAG) --set replicaCount=1
+
 install-dequeue:
 	env $(KUBE_ENV) $(HELM_ENV) helm upgrade --install dequeue ./manifest/dequeue-app -f manifest/dequeue-app/values/develop.yaml --set image.repository=local/dequeue --set image.tag=$(IMAGE_TAG)
+
+cluster-clean:
+	-env $(KUBE_ENV) $(HELM_ENV) helm uninstall dequeue
+	-env $(KUBE_ENV) $(HELM_ENV) helm uninstall enqueue
+	-env $(KUBE_ENV) $(HELM_ENV) helm uninstall postgresql
+	-env $(KUBE_ENV) $(HELM_ENV) helm uninstall elasticmq
+	-env $(KUBE_ENV) $(HELM_ENV) helm uninstall keda -n keda
+
+cluster-restore: install-elasticmq install-postgresql install-keda install-enqueue install-dequeue
 
 compose-up:
 	env $(DOCKER_ENV) docker compose up -d elasticmq postgresql enqueue
