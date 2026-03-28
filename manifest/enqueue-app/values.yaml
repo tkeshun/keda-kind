@@ -1,0 +1,12 @@
+image:
+  repository: enqueue
+  tag: latest
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+queueName: sample-queue
+sendInterval: 5s
+awsEndpoint: http://elasticmq.default.svc.cluster.local:9324
+awsRegion: elasticmq
+awsAccessKeyID: x
+awsSecretAccessKey: x

@@ -1,0 +1,51 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledJob
+metadata:
+  name: {{ include "dequeue.fullname" . }}
+spec:
+  pollingInterval: {{ .Values.pollingInterval }}
+  maxReplicaCount: {{ .Values.maxReplicaCount }}
+  successfulJobsHistoryLimit: {{ .Values.successfulJobsHistoryLimit }}
+  failedJobsHistoryLimit: {{ .Values.failedJobsHistoryLimit }}
+  jobTargetRef:
+    template:
+      spec:
+        restartPolicy: Never
+        containers:
+          - name: dequeue
+            image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+            imagePullPolicy: {{ .Values.image.pullPolicy }}
+            env:
+              - name: AWS_ENDPOINT
+                value: {{ .Values.awsEndpoint | quote }}
+              - name: AWS_REGION
+                value: {{ .Values.awsRegion | quote }}
+              - name: QUEUE_NAME
+                value: {{ .Values.queueName | quote }}
+              - name: QUEUE_URL
+                value: {{ .Values.queueURL | quote }}
+              - name: AWS_ACCESS_KEY_ID
+                valueFrom:
+                  secretKeyRef:
+                    name: {{ include "dequeue.fullname" . }}-config
+                    key: AWS_ACCESS_KEY_ID
+              - name: AWS_SECRET_ACCESS_KEY
+                valueFrom:
+                  secretKeyRef:
+                    name: {{ include "dequeue.fullname" . }}-config
+                    key: AWS_SECRET_ACCESS_KEY
+              - name: DB_CONNECTION_STRING
+                valueFrom:
+                  secretKeyRef:
+                    name: {{ include "dequeue.fullname" . }}-config
+                    key: DB_CONNECTION_STRING
+  triggers:
+    - type: aws-sqs-queue
+      metadata:
+        queueURLFromEnv: QUEUE_URL
+        queueLength: {{ .Values.queueLength | quote }}
+        awsRegion: {{ .Values.awsRegion | quote }}
+        identityOwner: operator
+        awsEndpoint: {{ .Values.awsEndpoint | quote }}
+      authenticationRef:
+        name: {{ include "dequeue.fullname" . }}
