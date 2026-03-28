@@ -101,9 +101,11 @@ psql 'postgres://app:app@127.0.0.1:5432/app?sslmode=disable' -c 'select code, se
 
 shared / app を含めた全 Helm chart は `manifest/` 配下にあります。app chart の開発用 override は `manifest/enqueue-app/values/develop.yaml` と `manifest/dequeue-app/values/develop.yaml` に置いています。
 
-`make install-dequeue` は `manifest/dequeue-app/values/develop.yaml` を使い、KEDA scaler も `dequeue-config` Secret の static credential で ElasticMQ を参照します。kind / ElasticMQ 検証では追加の AWS identity 設定は不要です。
+sample アプリの SQS client は AWS SDK の default credential chain を使います。kind / ElasticMQ では chart の Secret が `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` を pod に入れるため、追加の AWS identity 設定は不要です。
 
-`manifest/keda-operator/values/production.yaml` は KEDA Operator 専用 ServiceAccount を作る前提です。production 向けの `dequeue` scaler は `identityOwner: operator` と `TriggerAuthentication.podIdentity.provider: aws-eks` を使うため、本番ではこの ServiceAccount に対して EKS Pod Identity Association を作成し、SQS 読み取り権限を付与します。
+`make install-dequeue` は `manifest/dequeue-app/values/develop.yaml` を使い、KEDA scaler も同じ Secret 経由の認証情報で ElasticMQ を参照します。production では app / scaler ともに code branch なしで Pod Identity に切り替えられます。
+
+`manifest/keda-operator/values/production.yaml` は KEDA Operator 専用 ServiceAccount を作る前提です。production 向けの `dequeue` scaler は `identityOwner: operator` と `TriggerAuthentication.podIdentity.provider: aws-eks` を使うため、本番ではこの ServiceAccount に対して EKS Pod Identity Association を作成し、SQS 読み取り権限を付与します。app 側も同様に、対象 ServiceAccount に Pod Identity を関連付ければ AWS SDK default credential chain で認証されます。
 
 検証環境でも `make install-keda` は `keda-operator` ServiceAccount を作成します。ローカル検証では追加 annotation なし、本番では同名 ServiceAccount に対して EKS Pod Identity Association を作る想定です。
 

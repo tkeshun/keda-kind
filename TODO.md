@@ -96,7 +96,9 @@
 
 - sample アプリのコード正本は `sample-app/` 配下にある
 - Helm chart の正本は shared / app ともに `manifest/` 配下にある
-- develop の `dequeue` chart は KEDA scaler も Secret の static credential で ElasticMQ を読む
+- sample アプリの SQS client は AWS SDK default credential chain を使う
+- local ElasticMQ は chart の Secret が `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` を pod に入れるので動く
+- production は app / scaler ともに code branch なしで Pod Identity へ切り替える想定
 - production の `dequeue` scaler は `identityOwner: operator` と `aws-eks` Pod Identity を使う
-- production だけが KEDA Operator の ServiceAccount に EKS Pod Identity Association を必要とする
+- production では KEDA Operator と app の対象 ServiceAccount に EKS Pod Identity Association を付ける
 - 本ファイルの「検証済み」は、この環境で実行して通過したコマンドだけを記載している
