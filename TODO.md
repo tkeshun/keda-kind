@@ -42,7 +42,7 @@
 ## 残作業
 - 前提
 
-`export KUBECONFIG=/home/shun/dev/keda-kind/.cache/kubeconfig` は `kubectl` を手で叩くときの shell 上の便宜であり、Makefile の正しさには不要。
+`export KUBECONFIG=/home/shun/dev/keda-kind/.cache/kubeconfig` は、このチェックリスト内で手で叩く `kubectl` / `helm` コマンドの shell 上の便宜であり、Makefile の正しさには不要。
 
 - [ ] kind クラスタ上で `make kind-create` からデプロイ完走までを再確認する
   - [ ] `make kind-create`
