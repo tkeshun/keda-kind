@@ -1,0 +1,9 @@
+dependencies:
+- name: elasticmq
+  repository: file://../elasticmq
+  version: 0.1.0
+- name: postgresql
+  repository: file://../postgresql
+  version: 0.1.0
+digest: sha256:4b2a9904c84b56cdc2cc6f8e5b6dd54b7ef7af427d94f6047c79c826175e3963
+generated: "2026-04-07T00:46:29.493056488+09:00"

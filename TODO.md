@@ -115,6 +115,10 @@
 ## 追加タスク
 
 - [ ] ArgoCDで管理できるようにする
+  - [x] ArgoCD wrapper chart を `manifest/argocd` に追加する
+  - [x] `infra-core` / `keda-operator` / `sample-app` の Application 定義を追加する
+  - [x] `infra-bundle` / `app-bundle` chart を追加する
+  - [ ] kind 上で `make install-argocd` と `make install-argocd-apps` を通す
 - [ ] queue数に応じたスケールを再現する
   - [ ] k6でシナリオ書く
 - [ ] requestが足らないときの挙動を再現できるようにする

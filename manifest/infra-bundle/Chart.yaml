@@ -1,0 +1,12 @@
+apiVersion: v2
+name: infra-bundle
+description: Bundle chart for default-namespace infrastructure components.
+type: application
+version: 0.1.0
+dependencies:
+  - name: elasticmq
+    version: 0.1.0
+    repository: file://../elasticmq
+  - name: postgresql
+    version: 0.1.0
+    repository: file://../postgresql

@@ -1,0 +1,24 @@
+# Replace repoURL with the Git remote Argo CD can reach before applying this Application.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: infra-core
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://example.invalid/replace-with-your-git-remote.git
+    targetRevision: HEAD
+    path: manifest/infra-bundle
+    helm:
+      valueFiles:
+        - values/develop.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

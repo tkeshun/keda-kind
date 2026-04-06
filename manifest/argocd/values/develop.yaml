@@ -1,0 +1,4 @@
+argo-cd:
+  configs:
+    cm:
+      application.resourceTrackingMethod: annotation
