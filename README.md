@@ -156,6 +156,8 @@ kubectl -n argocd port-forward svc/argocd-server 8081:80
 
 このリポジトリには現時点で Git remote が設定されていないため、Application 定義の `repoURL` はプレースホルダーです。置き換え前に apply すると ArgoCD は同期できません。
 
+GitHub App 認証で repo を読む場合は、ArgoCD 用の repository Secret を手動で投入します。`argocd/secrets/github-repository.example.yaml` を元に、実ファイルは `argocd/secrets/github-repository.local.yaml` のような名前で作成してください。この `*.local.yaml` は `.gitignore` 済みです。
+
 5. Application を適用します。
 
 ```bash

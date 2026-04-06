@@ -1,3 +1,4 @@
 .cache/
 .worktrees/
+argocd/secrets/*.local.yaml
 .DS_Store
