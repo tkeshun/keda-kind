@@ -16,6 +16,9 @@ spec:
         - name: enqueue
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.httpPort }}
           env:
             - name: AWS_ENDPOINT
               value: {{ .Values.awsEndpoint | quote }}
@@ -23,8 +26,12 @@ spec:
               value: {{ .Values.awsRegion | quote }}
             - name: QUEUE_NAME
               value: {{ .Values.queueName | quote }}
+            - name: ENQUEUE_MODE
+              value: {{ .Values.mode | quote }}
             - name: SEND_INTERVAL
               value: {{ .Values.sendInterval | quote }}
+            - name: HTTP_PORT
+              value: {{ .Values.httpPort | quote }}
             - name: AWS_ACCESS_KEY_ID
               valueFrom:
                 secretKeyRef:

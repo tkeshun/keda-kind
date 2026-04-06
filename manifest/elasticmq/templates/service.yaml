@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "elasticmq.fullname" . }}
+spec:
+  selector:
+    app.kubernetes.io/name: {{ include "elasticmq.fullname" . }}
+  ports:
+    - name: sqs
+      port: {{ .Values.service.sqsPort }}
+      targetPort: sqs
+    - name: stats
+      port: {{ .Values.service.statsPort }}
+      targetPort: stats
+

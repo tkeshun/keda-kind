@@ -9,7 +9,7 @@ DOCKER_ENV = DOCKER_CONFIG=$(CURDIR)/.cache/docker
 HELM_ENV = HELM_CONFIG_HOME=$(CURDIR)/.cache/helm/config HELM_CACHE_HOME=$(CURDIR)/.cache/helm/cache HELM_DATA_HOME=$(CURDIR)/.cache/helm/data
 KUBE_ENV = KUBECONFIG=$(KUBECONFIG_PATH)
 
-.PHONY: test build-enqueue build-dequeue build kind-create kind-load ingress helm-deps install-elasticmq install-postgresql install-keda install-keda-prod install-enqueue install-dequeue keda-ready cluster-clean cluster-restore enqueue-scale-zero enqueue-scale-one compose-up compose-run-dequeue
+.PHONY: test build-enqueue build-dequeue build kind-create kind-load ingress helm-deps install-elasticmq install-postgresql install-keda install-keda-prod install-enqueue install-enqueue-http install-dequeue keda-ready cluster-clean cluster-restore enqueue-scale-zero enqueue-scale-one compose-up compose-run-dequeue
 
 test:
 	env $(GOENV) go test ./...
@@ -53,6 +53,9 @@ install-keda-prod:
 
 install-enqueue:
 	env $(KUBE_ENV) $(HELM_ENV) helm upgrade --install enqueue ./manifest/enqueue-app -f manifest/enqueue-app/values/develop.yaml --set image.repository=local/enqueue --set image.tag=$(IMAGE_TAG)
+
+install-enqueue-http:
+	env $(KUBE_ENV) $(HELM_ENV) helm upgrade --install enqueue ./manifest/enqueue-app -f manifest/enqueue-app/values/develop.yaml --set image.repository=local/enqueue --set image.tag=$(IMAGE_TAG) --set mode=http --set httpPort=8080
 
 enqueue-scale-zero:
 	env $(KUBE_ENV) $(HELM_ENV) helm upgrade enqueue ./manifest/enqueue-app -f manifest/enqueue-app/values/develop.yaml --set image.repository=local/enqueue --set image.tag=$(IMAGE_TAG) --set replicaCount=0

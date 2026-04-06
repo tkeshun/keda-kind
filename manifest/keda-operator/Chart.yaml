@@ -1,0 +1,10 @@
+apiVersion: v2
+name: keda-operator
+description: Wrapper chart for installing KEDA on kind.
+type: application
+version: 0.1.0
+appVersion: "2.18.1"
+dependencies:
+  - name: keda
+    version: 2.18.1
+    repository: https://kedacore.github.io/charts

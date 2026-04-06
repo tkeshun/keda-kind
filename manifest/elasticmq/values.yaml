@@ -1,0 +1,13 @@
+image:
+  repository: softwaremill/elasticmq-native
+  tag: 1.6.15
+  pullPolicy: IfNotPresent
+
+service:
+  sqsPort: 9324
+  statsPort: 9325
+
+queueName: sample-queue
+awsRegion: elasticmq
+accountId: "000000000000"
+

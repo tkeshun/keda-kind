@@ -87,6 +87,12 @@ make install-dequeue
 
 `enqueue` の deployment を一時停止したい場合は `make enqueue-scale-zero`、再開したい場合は `make enqueue-scale-one` を使います。
 
+HTTP モードで `enqueue` をデプロイしたい場合は、次を使います。
+
+```bash
+make install-enqueue-http
+```
+
 `make cluster-clean` は app / DB / KEDA の release だけを削除し、ingress-nginx と kind クラスタ本体、ロード済みイメージは残します。`make cluster-restore` は `make build`、`make kind-load`、`make helm-deps` を先に終えた local/develop の状態を前提に、`install-keda` と app の develop values を戻します。
 
 7. 動作確認を行います。
@@ -140,8 +146,21 @@ docker compose exec postgresql psql -U app -d app -c 'select code, sent_at, stor
 - `AWS_REGION`: 既定値は `elasticmq`
 - `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY`: 既定値は `x`
 - `QUEUE_NAME`: 既定値は `sample-queue`
+- `ENQUEUE_MODE`: `enqueue` の動作モード。`scheduled` または `http`。既定値は `scheduled`
 - `SEND_INTERVAL`: enqueue の送信間隔。既定値は `5s`
+- `HTTP_PORT`: `ENQUEUE_MODE=http` のときの listen port。既定値は `8080`
 - `QUEUE_URL`: dequeue が受信する完全な queue URL
 - `DB_CONNECTION_STRING`: PostgreSQL 接続文字列
 
 `enqueue` は送信前に SQS の `ApproximateNumberOfMessages` を参照し、可視メッセージ数が 10 件以上なら追加送信をスキップします。これは sample アプリ向けの best-effort な抑制であり、分散環境での厳密な上限制御を保証するものではありません。
+
+`ENQUEUE_MODE=http` にすると `enqueue` は定期投入を止め、HTTP サーバーとして起動します。`POST /enqueue` で 1 件投入を試み、`GET /healthz` で疎通確認できます。
+
+```bash
+docker compose run --rm -p 8080:8080 \
+  -e ENQUEUE_MODE=http \
+  enqueue
+
+curl -i -X POST http://127.0.0.1:8080/enqueue
+curl -i http://127.0.0.1:8080/healthz
+```

@@ -24,6 +24,8 @@ spec:
                 value: {{ .Values.queueName | quote }}
               - name: QUEUE_URL
                 value: {{ .Values.queueURL | quote }}
+              - name: DEQUEUE_STORE_DELAY_SECONDS
+                value: {{ .Values.storeDelaySeconds | quote }}
               - name: AWS_ACCESS_KEY_ID
                 valueFrom:
                   secretKeyRef:

@@ -5,7 +5,9 @@ image:
 
 replicaCount: 1
 queueName: sample-queue
+mode: scheduled
 sendInterval: 5s
+httpPort: 8080
 awsEndpoint: http://elasticmq.default.svc.cluster.local:9324
 awsRegion: elasticmq
 awsAccessKeyID: x

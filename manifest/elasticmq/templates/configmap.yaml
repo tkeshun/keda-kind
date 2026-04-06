@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "elasticmq.fullname" . }}-config
+data:
+  elasticmq.conf: |
+    include classpath("application.conf")
+
+    node-address {
+      protocol = http
+      host = "{{ include "elasticmq.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local"
+      port = {{ .Values.service.sqsPort }}
+      context-path = ""
+    }
+
+    rest-sqs {
+      enabled = true
+      bind-port = {{ .Values.service.sqsPort }}
+      bind-hostname = "0.0.0.0"
+    }
+
+    rest-stats {
+      enabled = true
+      bind-port = {{ .Values.service.statsPort }}
+      bind-hostname = "0.0.0.0"
+    }
+
+    generate-node-address = false
+
+    aws {
+      region = "{{ .Values.awsRegion }}"
+      accountId = "{{ .Values.accountId }}"
+    }
+
+    queues {
+      "{{ .Values.queueName }}" { }
+    }

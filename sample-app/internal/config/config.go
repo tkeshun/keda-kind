@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -16,6 +17,8 @@ type Enqueue struct {
 	AWS       AWS
 	QueueName string
 	Interval  time.Duration
+	Mode      string
+	HTTPPort  int
 }
 
 type Dequeue struct {
@@ -24,6 +27,7 @@ type Dequeue struct {
 	QueueURL           string
 	DBConnectionString string
 	WaitSeconds        int32
+	StoreDelay         time.Duration
 }
 
 func LoadEnqueue(getenv func(string) string) (Enqueue, error) {
@@ -41,10 +45,28 @@ func LoadEnqueue(getenv func(string) string) (Enqueue, error) {
 		interval = parsed
 	}
 
+	mode := firstNonEmpty(getenv("ENQUEUE_MODE"), "scheduled")
+	switch mode {
+	case "scheduled", "http":
+	default:
+		return Enqueue{}, fmt.Errorf("invalid ENQUEUE_MODE: %s", mode)
+	}
+
+	httpPort := 8080
+	if raw := getenv("HTTP_PORT"); raw != "" {
+		parsed, err := strconv.Atoi(raw)
+		if err != nil {
+			return Enqueue{}, fmt.Errorf("parse HTTP_PORT: %w", err)
+		}
+		httpPort = parsed
+	}
+
 	return Enqueue{
 		AWS:       awsCfg,
 		QueueName: firstNonEmpty(getenv("QUEUE_NAME"), "sample-queue"),
 		Interval:  interval,
+		Mode:      mode,
+		HTTPPort:  httpPort,
 	}, nil
 }
 
@@ -65,12 +87,25 @@ func LoadDequeue(getenv func(string) string) (Dequeue, error) {
 		queueURL = fmt.Sprintf("%s/queue/%s", trimTrailingSlash(awsCfg.Endpoint), queueName)
 	}
 
+	storeDelay := time.Duration(0)
+	if raw := getenv("DEQUEUE_STORE_DELAY_SECONDS"); raw != "" {
+		parsed, err := strconv.Atoi(raw)
+		if err != nil {
+			return Dequeue{}, fmt.Errorf("parse DEQUEUE_STORE_DELAY_SECONDS: %w", err)
+		}
+		if parsed < 0 {
+			return Dequeue{}, errors.New("DEQUEUE_STORE_DELAY_SECONDS must be >= 0")
+		}
+		storeDelay = time.Duration(parsed) * time.Second
+	}
+
 	return Dequeue{
 		AWS:                awsCfg,
 		QueueName:          queueName,
 		QueueURL:           queueURL,
 		DBConnectionString: dbURL,
 		WaitSeconds:        1,
+		StoreDelay:         storeDelay,
 	}, nil
 }
 

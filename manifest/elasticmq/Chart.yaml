@@ -1,0 +1,7 @@
+apiVersion: v2
+name: elasticmq
+description: ElasticMQ for local SQS-compatible testing.
+type: application
+version: 0.1.0
+appVersion: "1.6.15"
+

@@ -49,6 +49,19 @@ func TestMakefileReferencesSampleAppAssets(t *testing.T) {
 			t.Fatalf("expected Makefile to reference %q", snippet)
 		}
 	}
+
+	makeTargets := []string{
+		"install-enqueue:",
+		"install-enqueue-http:",
+	}
+	for _, target := range makeTargets {
+		if !strings.Contains(content, target) {
+			t.Fatalf("expected Makefile to define target %q", target)
+		}
+	}
+	if !strings.Contains(content, "--set mode=http") {
+		t.Fatalf("expected Makefile to define an http-mode enqueue install command")
+	}
 }
 
 func TestComposeReferencesSampleAppDockerfiles(t *testing.T) {

@@ -1,0 +1,59 @@
+services:
+  elasticmq:
+    image: softwaremill/elasticmq-native:1.6.15
+    ports:
+      - "9324:9324"
+      - "9325:9325"
+    volumes:
+      - ./deploy/elasticmq/elasticmq.conf:/opt/elasticmq.conf:ro
+
+  postgresql:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: app
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d app"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  enqueue:
+    build:
+      context: .
+      dockerfile: sample-app/docker/enqueue.Dockerfile
+    depends_on:
+      - elasticmq
+    ports:
+      - "8080:8080"
+    environment:
+      AWS_ENDPOINT: http://elasticmq:9324
+      AWS_REGION: elasticmq
+      AWS_ACCESS_KEY_ID: x
+      AWS_SECRET_ACCESS_KEY: x
+      QUEUE_NAME: sample-queue
+      ENQUEUE_MODE: scheduled
+      SEND_INTERVAL: 5s
+      HTTP_PORT: 8080
+
+  dequeue:
+    build:
+      context: .
+      dockerfile: sample-app/docker/dequeue.Dockerfile
+    depends_on:
+      elasticmq:
+        condition: service_started
+      postgresql:
+        condition: service_healthy
+    environment:
+      AWS_ENDPOINT: http://elasticmq:9324
+      AWS_REGION: elasticmq
+      AWS_ACCESS_KEY_ID: x
+      AWS_SECRET_ACCESS_KEY: x
+      QUEUE_NAME: sample-queue
+      QUEUE_URL: http://elasticmq:9324/queue/sample-queue
+      DB_CONNECTION_STRING: postgres://app:app@postgresql:5432/app?sslmode=disable
+      DEQUEUE_STORE_DELAY_SECONDS: "5"

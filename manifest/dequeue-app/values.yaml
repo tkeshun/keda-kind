@@ -1,21 +1,30 @@
+# Dequeue ワーカーのコンテナイメージ設定。
 image:
   repository: dequeue
   tag: latest
   pullPolicy: IfNotPresent
 
+# ElasticMQ/SQS 互換キューの接続設定。
 queueName: sample-queue
 queueURL: http://elasticmq.default.svc.cluster.local:9324/queue/sample-queue
+# 処理したメッセージをDBへ保存するまでの遅延秒数。
+storeDelaySeconds: "0"
+# KEDA がスケール判断に使うキュー長のしきい値。
 queueLength: "1"
+# ローカル開発用の ElasticMQ 接続先とダミー認証情報。
 awsEndpoint: http://elasticmq.default.svc.cluster.local:9324
 awsRegion: elasticmq
 awsAccessKeyID: x
 awsSecretAccessKey: x
+# dequeue ジョブが使う PostgreSQL 接続文字列。
 dbConnectionString: postgres://app:app@postgresql.default.svc.cluster.local:5432/app?sslmode=disable
+# KEDA のポーリング間隔とスケール・履歴の上限。
 pollingInterval: 5
 maxReplicaCount: 5
 successfulJobsHistoryLimit: 2
 failedJobsHistoryLimit: 2
 
+# KEDA の認証方式設定。
 kedaAuthentication:
   mode: operator
   podIdentityProvider: aws-eks

@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "elasticmq.fullname" . }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "elasticmq.fullname" . }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "elasticmq.fullname" . }}
+    spec:
+      containers:
+        - name: elasticmq
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: sqs
+              containerPort: {{ .Values.service.sqsPort }}
+            - name: stats
+              containerPort: {{ .Values.service.statsPort }}
+          volumeMounts:
+            - name: config
+              mountPath: /opt/elasticmq.conf
+              subPath: elasticmq.conf
+          readinessProbe:
+            tcpSocket:
+              port: sqs
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "elasticmq.fullname" . }}-config

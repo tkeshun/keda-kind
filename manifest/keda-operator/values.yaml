@@ -1,0 +1,14 @@
+keda:
+  logging:
+    operator:
+      level: info
+    metricServer:
+      level: 0
+    webhooks:
+      level: info
+  serviceAccount:
+    operator:
+      create: true
+      name: keda-operator
+      automountServiceAccountToken: true
+      annotations: {}

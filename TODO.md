@@ -51,47 +51,76 @@
   - [ ] `make ingress`
     - [ ] `kubectl get pods -n ingress-nginx`
     - [ ] `kubectl rollout status deployment/ingress-nginx-controller -n ingress-nginx --timeout=180s`
-  - [ ] `make build`
-    - [ ] `docker image inspect local/enqueue:dev`
-    - [ ] `docker image inspect local/dequeue:dev`
-  - [ ] `make kind-load`
-    - [ ] `docker exec keda-kind-control-plane crictl images | grep 'local/enqueue'`
-    - [ ] `docker exec keda-kind-control-plane crictl images | grep 'local/dequeue'`
-  - [ ] `make helm-deps`
-    - [ ] `test -f manifest/keda-operator/charts/keda-2.18.1.tgz`
-  - [ ] `make install-elasticmq`
-    - [ ] `helm status elasticmq`
-    - [ ] `kubectl get deploy elasticmq`
-    - [ ] `kubectl rollout status deployment/elasticmq --timeout=180s`
-  - [ ] `make install-postgresql`
-    - [ ] `helm status postgresql`
-    - [ ] `kubectl get deploy postgresql`
-    - [ ] `kubectl rollout status deployment/postgresql --timeout=180s`
-  - [ ] `make install-keda` または `make install-keda-prod`
-    - [ ] `helm status keda -n keda`
-    - [ ] `kubectl get pods -n keda`
-    - [ ] `kubectl rollout status deployment/keda-operator -n keda --timeout=180s`
-  - [ ] `make install-enqueue`
+  - [x] `make build`
+    - [x] `docker image inspect local/enqueue:dev`
+    - [x] `docker image inspect local/dequeue:dev`
+  - [x] `make kind-load`
+    - [x] `docker exec keda-kind-control-plane crictl images | grep 'local/enqueue'`
+    - [x] `docker exec keda-kind-control-plane crictl images | grep 'local/dequeue'`
+  - [x] `make helm-deps`
+    - [x] `test -f manifest/keda-operator/charts/keda-2.18.1.tgz`
+  - [x] `make install-elasticmq`
+    - [x] `helm status elasticmq`
+    - [x] `kubectl get deploy elasticmq`
+    - [x] `kubectl rollout status deployment/elasticmq --timeout=180s`
+  - [x] `make install-postgresql`
+    - [x] `helm status postgresql`
+    - [x] `kubectl get deploy postgresql`
+    - [x] `kubectl rollout status deployment/postgresql --timeout=180s`
+  - [x] `make install-keda` または `make install-keda-prod`
+    - [x] `helm status keda -n keda`
+    - [x] `kubectl get pods -n keda`
+    - [x] `kubectl rollout status deployment/keda-operator -n keda --timeout=180s`
+  - [x] `make install-enqueue`
+    - [x] `helm status enqueue`
+    - [x] `kubectl get deploy enqueue`
+    - [x] `kubectl rollout status deployment/enqueue --timeout=180s`
+    - [ ] scheduled モード確認
+      - [ ] `kubectl get deploy enqueue -o jsonpath='{.spec.template.spec.containers[0].env[?(@.name=="ENQUEUE_MODE")].value}'`
+      - [ ] `kubectl logs deploy/enqueue`
+  - [ ] `make install-enqueue-http`
     - [ ] `helm status enqueue`
     - [ ] `kubectl get deploy enqueue`
     - [ ] `kubectl rollout status deployment/enqueue --timeout=180s`
-  - [ ] `make install-dequeue`
-    - [ ] `helm status dequeue`
-    - [ ] `kubectl get scaledjob dequeue`
-    - [ ] `kubectl get triggerauthentication dequeue`
-    - [ ] `kubectl get triggerauthentication dequeue -o yaml`
-      - [ ] `secretTargetRef` が live resource に入っている
-- [ ] kind 上で KEDA のスケーリング動作を確認する
-  - [ ] `kubectl get scaledjobs`
-  - [ ] `kubectl get jobs --watch`
-  - [ ] `kubectl logs deploy/enqueue`
-- [ ] kind 上の PostgreSQL に `dequeue` の保存結果が入ることを確認する
-  - [ ] `kubectl get deploy postgresql`
-  - [ ] `kubectl port-forward svc/postgresql 5432:5432`
-  - [ ] `psql 'postgres://app:app@127.0.0.1:5432/app?sslmode=disable' -c 'select code, sent_at, stored_at from queue_messages order by id desc limit 10;'`
+    - [ ] HTTP モード確認
+      - [ ] `kubectl get deploy enqueue -o jsonpath='{.spec.template.spec.containers[0].env[?(@.name=="ENQUEUE_MODE")].value}'`
+      - [ ] `kubectl logs deploy/enqueue`
+    - [ ] 手動リクエストを投げる
+      - [ ] `kubectl port-forward svc/enqueue 18080:8080`
+      - [ ] `curl -i http://127.0.0.1:18080/healthz`
+      - [ ] `curl -i -X POST http://127.0.0.1:18080/enqueue`
+  - [x] `make install-dequeue`
+    - [x] `helm status dequeue`
+    - [x] `kubectl get scaledjob dequeue`
+    - [x] `kubectl get triggerauthentication dequeue`
+    - [x] `kubectl get triggerauthentication dequeue -o yaml`
+      - [x] `secretTargetRef` が live resource に入っている
+- [x] kind 上で KEDA のスケーリング動作を確認する
+  - [x] `kubectl get scaledjobs`
+  - [x] `kubectl get jobs --watch`
+  - [x] `kubectl logs deploy/enqueue`
+- [x] kind 上の PostgreSQL に `dequeue` の保存結果が入ることを確認する
+  - [x] `kubectl get deploy postgresql`
+  - [x] `kubectl port-forward svc/postgresql 5432:5432`
+  - [x] `psql 'postgres://app:app@127.0.0.1:5432/app?sslmode=disable' -c 'select code, sent_at, stored_at from queue_messages order by id desc limit 10;'`
+  - [x] `kubectl exec deploy/postgresql -- psql -U app -d app -c 'select code, sent_at, stored_at from queue_messages order by id desc limit 10;'`
+- [ ] PostgreSQL の残存データを消して日本時間運用を確認する
+  - [ ] `kubectl exec deploy/postgresql -- psql -U app -d app -c "delete from queue_messages;"`
+  - [ ] `kubectl exec deploy/postgresql -- psql -U app -d app -c "ALTER SYSTEM SET timezone = 'Asia/Tokyo';"`
+  - [ ] `kubectl exec deploy/postgresql -- psql -U app -d app -c "select pg_reload_conf();"`
+  - [ ] `kubectl exec deploy/postgresql -- psql -U app -d app -c "show timezone;"`
 - [ ] 必要なら chart の values を namespace / image tag / 実運用向け設定に合わせて調整する
 - [ ] 必要なら CI 用の自動検証を追加する
 
+## 追加タスク
+
+- [ ] ArgoCDで管理できるようにする
+- [ ] queue数に応じたスケールを再現する
+  - [ ] k6でシナリオ書く
+- [ ] requestが足らないときの挙動を再現できるようにする
+  - [ ] 過剰なリクエストのJob定義を用意する
+  - [ ] K6でシナリオを書く
+- [ ] 
 ## メモ
 
 - sample アプリのコード正本は `sample-app/` 配下にある
