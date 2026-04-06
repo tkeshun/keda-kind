@@ -17,6 +17,12 @@ func TestSampleAppLayoutUsesSampleAppPaths(t *testing.T) {
 		"sample-app/docker/dequeue.Dockerfile",
 		"manifest/enqueue-app/Chart.yaml",
 		"manifest/dequeue-app/Chart.yaml",
+		"manifest/argocd/Chart.yaml",
+		"manifest/infra-bundle/Chart.yaml",
+		"manifest/app-bundle/Chart.yaml",
+		"argocd/applications/infra-core.yaml",
+		"argocd/applications/keda-operator.yaml",
+		"argocd/applications/sample-app.yaml",
 	}
 
 	for _, relativePath := range requiredFiles {
@@ -42,6 +48,9 @@ func TestMakefileReferencesSampleAppAssets(t *testing.T) {
 		"sample-app/docker/dequeue.Dockerfile",
 		"./manifest/enqueue-app",
 		"./manifest/dequeue-app",
+		"helm-deps-argocd:",
+		"install-argocd:",
+		"argocd-ready:",
 	}
 
 	for _, snippet := range requiredSnippets {
@@ -61,6 +70,33 @@ func TestMakefileReferencesSampleAppAssets(t *testing.T) {
 	}
 	if !strings.Contains(content, "--set mode=http") {
 		t.Fatalf("expected Makefile to define an http-mode enqueue install command")
+	}
+}
+
+func TestReadmeMentionsArgoCDFlow(t *testing.T) {
+	t.Parallel()
+
+	root := filepath.Clean(filepath.Join("..", ".."))
+
+	readme, err := os.ReadFile(filepath.Join(root, "README.md"))
+	if err != nil {
+		t.Fatalf("read README.md: %v", err)
+	}
+
+	content := string(readme)
+	requiredSnippets := []string{
+		"manifest/argocd",
+		"argocd/applications/infra-core.yaml",
+		"argocd/applications/keda-operator.yaml",
+		"argocd/applications/sample-app.yaml",
+		"make install-argocd",
+		"make argocd-ready",
+	}
+
+	for _, snippet := range requiredSnippets {
+		if !strings.Contains(content, snippet) {
+			t.Fatalf("expected README.md to reference %q", snippet)
+		}
 	}
 }
 

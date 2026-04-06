@@ -1,0 +1,9 @@
+dependencies:
+- name: enqueue
+  repository: file://../enqueue-app
+  version: 0.1.0
+- name: dequeue
+  repository: file://../dequeue-app
+  version: 0.1.0
+digest: sha256:4f2da6be045a11c651e77c479d2ee3ac5d0d455fe03f9654ac601db2b4cc304c
+generated: "2026-04-07T00:46:29.834706139+09:00"

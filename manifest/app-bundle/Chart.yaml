@@ -1,0 +1,12 @@
+apiVersion: v2
+name: app-bundle
+description: Bundle chart for sample applications running on the local cluster.
+type: application
+version: 0.1.0
+dependencies:
+  - name: enqueue
+    version: 0.1.0
+    repository: file://../enqueue-app
+  - name: dequeue
+    version: 0.1.0
+    repository: file://../dequeue-app

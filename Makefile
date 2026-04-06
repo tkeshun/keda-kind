@@ -9,7 +9,7 @@ DOCKER_ENV = DOCKER_CONFIG=$(CURDIR)/.cache/docker
 HELM_ENV = HELM_CONFIG_HOME=$(CURDIR)/.cache/helm/config HELM_CACHE_HOME=$(CURDIR)/.cache/helm/cache HELM_DATA_HOME=$(CURDIR)/.cache/helm/data
 KUBE_ENV = KUBECONFIG=$(KUBECONFIG_PATH)
 
-.PHONY: test build-enqueue build-dequeue build kind-create kind-load ingress helm-deps install-elasticmq install-postgresql install-keda install-keda-prod install-enqueue install-enqueue-http install-dequeue keda-ready cluster-clean cluster-restore enqueue-scale-zero enqueue-scale-one compose-up compose-run-dequeue
+.PHONY: test build-enqueue build-dequeue build kind-create kind-load ingress helm-deps helm-deps-argocd install-elasticmq install-postgresql install-keda install-keda-prod install-argocd install-argocd-apps install-enqueue install-enqueue-http install-dequeue keda-ready argocd-ready cluster-clean cluster-restore enqueue-scale-zero enqueue-scale-one compose-up compose-run-dequeue
 
 test:
 	env $(GOENV) go test ./...
@@ -38,6 +38,13 @@ helm-deps:
 	env $(KUBE_ENV) $(HELM_ENV) helm repo add kedacore https://kedacore.github.io/charts
 	env $(KUBE_ENV) $(HELM_ENV) helm repo update
 	env $(KUBE_ENV) $(HELM_ENV) helm dependency build manifest/keda-operator
+	env $(KUBE_ENV) $(HELM_ENV) helm dependency build manifest/infra-bundle
+	env $(KUBE_ENV) $(HELM_ENV) helm dependency build manifest/app-bundle
+
+helm-deps-argocd:
+	env $(KUBE_ENV) $(HELM_ENV) helm repo add argo https://argoproj.github.io/argo-helm
+	env $(KUBE_ENV) $(HELM_ENV) helm repo update
+	env $(KUBE_ENV) $(HELM_ENV) helm dependency build manifest/argocd
 
 install-elasticmq:
 	env $(KUBE_ENV) $(HELM_ENV) helm upgrade --install elasticmq ./manifest/elasticmq
@@ -50,6 +57,14 @@ install-keda:
 
 install-keda-prod:
 	env $(KUBE_ENV) $(HELM_ENV) helm upgrade --install keda ./manifest/keda-operator -f manifest/keda-operator/values/production.yaml -n keda --create-namespace
+
+install-argocd:
+	env $(KUBE_ENV) $(HELM_ENV) helm upgrade --install argocd ./manifest/argocd -f manifest/argocd/values/develop.yaml -n argocd --create-namespace
+
+install-argocd-apps:
+	env $(KUBE_ENV) kubectl apply -f argocd/applications/infra-core.yaml
+	env $(KUBE_ENV) kubectl apply -f argocd/applications/keda-operator.yaml
+	env $(KUBE_ENV) kubectl apply -f argocd/applications/sample-app.yaml
 
 install-enqueue:
 	env $(KUBE_ENV) $(HELM_ENV) helm upgrade --install enqueue ./manifest/enqueue-app -f manifest/enqueue-app/values/develop.yaml --set image.repository=local/enqueue --set image.tag=$(IMAGE_TAG)
@@ -77,6 +92,15 @@ keda-ready:
 	env $(KUBE_ENV) kubectl rollout status deployment/keda-operator -n keda --timeout=180s
 	env $(KUBE_ENV) kubectl wait --for=condition=Established crd/scaledjobs.keda.sh --timeout=180s
 	env $(KUBE_ENV) kubectl wait --for=condition=Established crd/triggerauthentications.keda.sh --timeout=180s
+
+argocd-ready:
+	env $(KUBE_ENV) kubectl rollout status deployment/argocd-server -n argocd --timeout=180s
+	env $(KUBE_ENV) kubectl rollout status deployment/argocd-repo-server -n argocd --timeout=180s
+	env $(KUBE_ENV) kubectl rollout status deployment/argocd-redis -n argocd --timeout=180s
+	env $(KUBE_ENV) kubectl rollout status deployment/argocd-applicationset-controller -n argocd --timeout=180s
+	env $(KUBE_ENV) kubectl rollout status deployment/argocd-notifications-controller -n argocd --timeout=180s
+	env $(KUBE_ENV) kubectl rollout status deployment/argocd-commit-server -n argocd --timeout=180s
+	env $(KUBE_ENV) kubectl rollout status statefulset/argocd-application-controller -n argocd --timeout=180s
 
 cluster-restore: install-elasticmq install-postgresql install-keda install-enqueue install-dequeue
 
