@@ -3,7 +3,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
   name: env-bundle
-  namespace: argocd
+  namespace: sample-applicationset
 spec:
   goTemplate: true
   goTemplateOptions:
@@ -35,12 +35,12 @@ spec:
   template:
     metadata:
       name: "{{ .name }}"
-      namespace: argocd
+      namespace: sample-applicationset
       labels:
         app.kubernetes.io/managed-by: applicationset
         app.kubernetes.io/part-of: keda-kind
     spec:
-      project: default
+      project: sample-app
       source:
         repoURL: "{{ .repoURL }}"
         targetRevision: "{{ .targetRevision }}"
