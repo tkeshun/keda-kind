@@ -20,9 +20,7 @@ func TestSampleAppLayoutUsesSampleAppPaths(t *testing.T) {
 		"manifest/argocd/Chart.yaml",
 		"manifest/infra-bundle/Chart.yaml",
 		"manifest/app-bundle/Chart.yaml",
-		"argocd/applications/infra-core.yaml",
-		"argocd/applications/keda-operator.yaml",
-		"argocd/applications/sample-app.yaml",
+		"argocd/applicationsets/env-bundle.yaml",
 	}
 
 	for _, relativePath := range requiredFiles {
@@ -48,6 +46,7 @@ func TestMakefileReferencesSampleAppAssets(t *testing.T) {
 		"sample-app/docker/dequeue.Dockerfile",
 		"./manifest/enqueue-app",
 		"./manifest/dequeue-app",
+		"argocd/applicationsets/env-bundle.yaml",
 		"helm-deps-argocd:",
 		"install-argocd:",
 		"argocd-ready:",
@@ -86,9 +85,7 @@ func TestReadmeMentionsArgoCDFlow(t *testing.T) {
 	content := string(readme)
 	requiredSnippets := []string{
 		"manifest/argocd",
-		"argocd/applications/infra-core.yaml",
-		"argocd/applications/keda-operator.yaml",
-		"argocd/applications/sample-app.yaml",
+		"argocd/applicationsets/env-bundle.yaml",
 		"make install-argocd",
 		"make argocd-ready",
 	}

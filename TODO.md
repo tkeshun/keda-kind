@@ -117,6 +117,7 @@
 - [ ] ArgoCDで管理できるようにする
   - [x] ArgoCD wrapper chart を `manifest/argocd` に追加する
   - [x] `infra-core` / `keda-operator` / `sample-app` の Application 定義を追加する
+  - [x] `infra-core` / `keda-operator` / `sample-app` の ApplicationSet 生成に移行する
   - [x] `infra-bundle` / `app-bundle` chart を追加する
   - [ ] kind 上で `make install-argocd` と `make install-argocd-apps` を通す
 - [ ] queue数に応じたスケールを再現する
@@ -135,3 +136,48 @@
 - production の `dequeue` scaler は `identityOwner: operator` と `aws-eks` Pod Identity を使う
 - production では KEDA Operator と app の対象 ServiceAccount に EKS Pod Identity Association を付ける
 - 本ファイルの「検証済み」は、この環境で実行して通過したコマンドだけを記載している
+
+## ArgoCD 同期に向けた残作業
+
+- [ ] GitHub 上の ArgoCD 同期対象 URL を確定する
+  - [ ] `https://github.com/tkeshun/keda-kind.git` を `repoURL` に使う
+  - [ ] 同期確認中の `targetRevision` を `main` にする
+- [ ] GitHub App 認証用 Secret を手動で投入する
+  - [ ] `argocd/secrets/github-repository.example.yaml` を元に `argocd/secrets/github-repository.local.yaml` を作る
+  - [ ] `githubAppID` を埋める
+  - [ ] `githubAppInstallationID` を埋める
+  - [ ] `githubAppPrivateKey` を埋める
+  - [ ] `kubectl create namespace argocd`
+  - [ ] `kubectl apply -f argocd/secrets/github-repository.local.yaml`
+- [ ] ArgoCD ApplicationSet 定義を `main` 同期向けに確認する
+  - [ ] `argocd/applicationsets/env-bundle.yaml`
+  - [ ] `repoURL` が GitHub の実 URL になっていることを確認する
+  - [ ] `targetRevision` が `main` になっていることを確認する
+  - [ ] 生成対象が `keda-operator` / `infra-core` / `sample-app` になっていることを確認する
+  - [ ] `keda-operator` は `manifest/keda-operator`、`infra-core` は `manifest/infra-bundle`、`sample-app` は `manifest/app-bundle` を参照していることを確認する
+- [x] ArgoCD ApplicationSet 移行に合わせて導線を更新する
+  - [x] `Makefile` の `install-argocd-apps` が `argocd/applicationsets/env-bundle.yaml` を apply するようにする
+  - [x] `README.md` の ArgoCD 導入手順を `argocd/applicationsets/env-bundle.yaml` 前提にする
+  - [x] `sample-app/layout/layout_test.go` の期待パスを `argocd/applicationsets/env-bundle.yaml` 前提にする
+- [ ] kind 上で ArgoCD 本体を導入して ready を確認する
+  - [ ] `make helm-deps-argocd`
+  - [ ] `make install-argocd`
+  - [ ] `make argocd-ready`
+- [ ] ArgoCD から ApplicationSet を登録して同期状態を確認する
+  - [ ] `make install-argocd-apps`
+  - [ ] `kubectl get applicationsets -n argocd`
+  - [ ] `kubectl describe applicationset env-bundle -n argocd`
+  - [ ] `kubectl get applications -n argocd`
+  - [ ] `kubectl describe application infra-core -n argocd`
+  - [ ] `kubectl describe application keda-operator -n argocd`
+  - [ ] `kubectl describe application sample-app -n argocd`
+- [ ] 同期後の実リソースを確認する
+  - [ ] `kubectl get pods -n argocd`
+  - [ ] `kubectl get pods -n keda`
+  - [ ] `kubectl get deploy elasticmq postgresql enqueue`
+  - [ ] `kubectl get scaledjob dequeue`
+  - [ ] `kubectl get triggerauthentication dequeue`
+- [ ] 同期後のアプリ動作を確認する
+  - [ ] `kubectl logs deploy/enqueue`
+  - [ ] `kubectl get jobs --watch`
+  - [ ] `kubectl exec deploy/postgresql -- psql -U app -d app -c 'select code, sent_at, stored_at from queue_messages order by id desc limit 10;'`

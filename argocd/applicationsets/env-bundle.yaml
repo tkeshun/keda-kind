@@ -1,0 +1,59 @@
+# Replace repoURL with the Git remote Argo CD can reach before applying this ApplicationSet.
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: env-bundle
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions:
+    - missingkey=error
+  generators:
+    - list:
+        elements:
+          - name: keda-operator
+            repoURL: https://example.invalid/replace-with-your-git-remote.git
+            targetRevision: HEAD
+            chartPath: manifest/keda-operator
+            valuesFile: values/develop.yaml
+            destinationServer: https://kubernetes.default.svc
+            destinationNamespace: keda
+          - name: infra-core
+            repoURL: https://example.invalid/replace-with-your-git-remote.git
+            targetRevision: HEAD
+            chartPath: manifest/infra-bundle
+            valuesFile: values/develop.yaml
+            destinationServer: https://kubernetes.default.svc
+            destinationNamespace: default
+          - name: sample-app
+            repoURL: https://example.invalid/replace-with-your-git-remote.git
+            targetRevision: HEAD
+            chartPath: manifest/app-bundle
+            valuesFile: values/develop.yaml
+            destinationServer: https://kubernetes.default.svc
+            destinationNamespace: default
+  template:
+    metadata:
+      name: "{{ .name }}"
+      namespace: argocd
+      labels:
+        app.kubernetes.io/managed-by: applicationset
+        app.kubernetes.io/part-of: keda-kind
+    spec:
+      project: default
+      source:
+        repoURL: "{{ .repoURL }}"
+        targetRevision: "{{ .targetRevision }}"
+        path: "{{ .chartPath }}"
+        helm:
+          valueFiles:
+            - "{{ .valuesFile }}"
+      destination:
+        server: "{{ .destinationServer }}"
+        namespace: "{{ .destinationNamespace }}"
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

@@ -62,9 +62,7 @@ install-argocd:
 	env $(KUBE_ENV) $(HELM_ENV) helm upgrade --install argocd ./manifest/argocd -f manifest/argocd/values/develop.yaml -n argocd --create-namespace
 
 install-argocd-apps:
-	env $(KUBE_ENV) kubectl apply -f argocd/applications/infra-core.yaml
-	env $(KUBE_ENV) kubectl apply -f argocd/applications/keda-operator.yaml
-	env $(KUBE_ENV) kubectl apply -f argocd/applications/sample-app.yaml
+	env $(KUBE_ENV) kubectl apply -f argocd/applicationsets/env-bundle.yaml
 
 install-enqueue:
 	env $(KUBE_ENV) $(HELM_ENV) helm upgrade --install enqueue ./manifest/enqueue-app -f manifest/enqueue-app/values/develop.yaml --set image.repository=local/enqueue --set image.tag=$(IMAGE_TAG)
