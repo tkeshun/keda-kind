@@ -5,6 +5,8 @@ argo-cd:
   configs:
     params:
       server.insecure: true
+      application.namespaces: sample-applicationset
+      applicationsetcontroller.namespaces: sample-applicationset
   server:
     service:
       type: ClusterIP
