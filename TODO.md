@@ -139,16 +139,16 @@
 
 ## ArgoCD 同期に向けた残作業
 
-- [ ] GitHub 上の ArgoCD 同期対象 URL を確定する
-  - [ ] `https://github.com/tkeshun/keda-kind.git` を `repoURL` に使う
-  - [ ] 同期確認中の `targetRevision` を `main` にする
-- [ ] GitHub App 認証用 Secret を手動で投入する
-  - [ ] `argocd/secrets/github-repository.example.yaml` を元に `argocd/secrets/github-repository.local.yaml` を作る
-  - [ ] `githubAppID` を埋める
-  - [ ] `githubAppInstallationID` を埋める
-  - [ ] `githubAppPrivateKey` を埋める
-  - [ ] `kubectl create namespace argocd`
-  - [ ] `kubectl apply -f argocd/secrets/github-repository.local.yaml`
+- [x] GitHub 上の ArgoCD 同期対象 URL を確定する
+  - [x] `https://github.com/tkeshun/keda-kind.git` を `repoURL` に使う
+  - [x] 同期確認中の `targetRevision` を `main` にする
+- [x] GitHub App 認証用 Secret を手動で投入する
+  - [x] `argocd/secrets/github-repository.example.yaml` を元に `argocd/secrets/github-repository.local.yaml` を作る
+  - [x] `githubAppID` を埋める
+  - [x] `githubAppInstallationID` を埋める
+  - [x] `githubAppPrivateKey` を埋める
+  - [x] `kubectl create namespace argocd`
+  - [x] `kubectl apply -f argocd/secrets/github-repository.local.yaml`
 - [ ] ArgoCD ApplicationSet 定義を `main` 同期向けに確認する
   - [ ] `argocd/applicationsets/env-bundle.yaml`
   - [ ] `repoURL` が GitHub の実 URL になっていることを確認する
@@ -165,12 +165,12 @@
   - [ ] `make argocd-ready`
 - [ ] ArgoCD から ApplicationSet を登録して同期状態を確認する
   - [ ] `make install-argocd-apps`
-  - [ ] `kubectl get applicationsets -n argocd`
-  - [ ] `kubectl describe applicationset env-bundle -n argocd`
-  - [ ] `kubectl get applications -n argocd`
-  - [ ] `kubectl describe application infra-core -n argocd`
-  - [ ] `kubectl describe application keda-operator -n argocd`
-  - [ ] `kubectl describe application sample-app -n argocd`
+  - [ ] `kubectl get applicationsets -n sample-applicationset`
+  - [ ] `kubectl describe applicationset env-bundle -n sample-applicationset`
+  - [ ] `kubectl get applications -n sample-applicationset`
+  - [ ] `kubectl describe application infra-core -n sample-applicationset`
+  - [ ] `kubectl describe application keda-operator -n sample-applicationset`
+  - [ ] `kubectl describe application sample-app -n sample-applicationset`
 - [ ] 同期後の実リソースを確認する
   - [ ] `kubectl get pods -n argocd`
   - [ ] `kubectl get pods -n keda`

@@ -158,10 +158,20 @@ kubectl -n argocd port-forward svc/argocd-server 8081:80
 
 GitHub App 認証で repo を読む場合は、ArgoCD 用の repository Secret を手動で投入します。`argocd/secrets/github-repository.example.yaml` を元に、実ファイルは `argocd/secrets/github-repository.local.yaml` のような名前で作成してください。この `*.local.yaml` は `.gitignore` 済みです。
 
-5. ApplicationSet を適用します。ApplicationSet は `keda-operator`、`infra-core`、`sample-app` の Application を生成し、それぞれ既存の Helm chart を同期します。
+5. ApplicationSet を適用します。`make install-argocd-apps` は `argocd/namespaces/sample-applicationset.yaml`、`argocd/projects/sample-app.yaml`、`argocd/applicationsets/env-bundle.yaml` の順に apply します。
 
 ```bash
 make install-argocd-apps
+```
+
+ApplicationSet とそこで生成される Application は `sample-applicationset` namespace に作られます。ArgoCD 本体は `argocd` namespace のままです。したがって、このコマンドは ArgoCD 管理用クラスタを指す kubecontext で実行してください。
+
+確認用には次を使います。
+
+```bash
+kubectl get applicationsets -n sample-applicationset
+kubectl get applications -n sample-applicationset
+kubectl describe application infra-core -n sample-applicationset
 ```
 
 ArgoCD CLI はこの導線では必須ではありません。CLI のダウンロードや追加ツールの導入が必要な場合は、自動取得せずユーザーが実施する前提です。

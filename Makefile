@@ -62,6 +62,8 @@ install-argocd:
 	env $(KUBE_ENV) $(HELM_ENV) helm upgrade --install argocd ./manifest/argocd -f manifest/argocd/values/develop.yaml -n argocd --create-namespace
 
 install-argocd-apps:
+	env $(KUBE_ENV) kubectl apply -f argocd/namespaces/sample-applicationset.yaml
+	env $(KUBE_ENV) kubectl apply -f argocd/projects/sample-app.yaml
 	env $(KUBE_ENV) kubectl apply -f argocd/applicationsets/env-bundle.yaml
 
 install-enqueue:
