@@ -1,3 +1,3 @@
 {{- define "enqueue.fullname" -}}
-{{- default .Chart.Name .Values.fullnameOverride | trunc 63 | trimSuffix "-" -}}
+{{- default .Release.Name .Values.fullnameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}

@@ -39,7 +39,6 @@ helm-deps:
 	env $(KUBE_ENV) $(HELM_ENV) helm repo update
 	env $(KUBE_ENV) $(HELM_ENV) helm dependency build manifest/keda-operator
 	env $(KUBE_ENV) $(HELM_ENV) helm dependency build manifest/infra-bundle
-	env $(KUBE_ENV) $(HELM_ENV) helm dependency build manifest/app-bundle
 
 helm-deps-argocd:
 	env $(KUBE_ENV) $(HELM_ENV) helm repo add argo https://argoproj.github.io/argo-helm
@@ -67,23 +66,23 @@ install-argocd-apps:
 	env $(KUBE_ENV) kubectl apply -f argocd/applicationsets/env-bundle.yaml
 
 install-enqueue:
-	env $(KUBE_ENV) $(HELM_ENV) helm upgrade --install enqueue ./manifest/enqueue-app -f manifest/enqueue-app/values/develop.yaml --set image.repository=local/enqueue --set image.tag=$(IMAGE_TAG)
+	env $(KUBE_ENV) $(HELM_ENV) helm upgrade --install enqueue-app ./manifest/enqueue-app -f manifest/enqueue-app/values/develop.yaml --set image.repository=local/enqueue --set image.tag=$(IMAGE_TAG)
 
 install-enqueue-http:
-	env $(KUBE_ENV) $(HELM_ENV) helm upgrade --install enqueue ./manifest/enqueue-app -f manifest/enqueue-app/values/develop.yaml --set image.repository=local/enqueue --set image.tag=$(IMAGE_TAG) --set mode=http --set httpPort=8080
+	env $(KUBE_ENV) $(HELM_ENV) helm upgrade --install enqueue-app ./manifest/enqueue-app -f manifest/enqueue-app/values/develop.yaml --set image.repository=local/enqueue --set image.tag=$(IMAGE_TAG) --set mode=http --set httpPort=8080
 
 enqueue-scale-zero:
-	env $(KUBE_ENV) $(HELM_ENV) helm upgrade enqueue ./manifest/enqueue-app -f manifest/enqueue-app/values/develop.yaml --set image.repository=local/enqueue --set image.tag=$(IMAGE_TAG) --set replicaCount=0
+	env $(KUBE_ENV) $(HELM_ENV) helm upgrade enqueue-app ./manifest/enqueue-app -f manifest/enqueue-app/values/develop.yaml --set image.repository=local/enqueue --set image.tag=$(IMAGE_TAG) --set replicaCount=0
 
 enqueue-scale-one:
-	env $(KUBE_ENV) $(HELM_ENV) helm upgrade enqueue ./manifest/enqueue-app -f manifest/enqueue-app/values/develop.yaml --set image.repository=local/enqueue --set image.tag=$(IMAGE_TAG) --set replicaCount=1
+	env $(KUBE_ENV) $(HELM_ENV) helm upgrade enqueue-app ./manifest/enqueue-app -f manifest/enqueue-app/values/develop.yaml --set image.repository=local/enqueue --set image.tag=$(IMAGE_TAG) --set replicaCount=1
 
 install-dequeue: keda-ready
-	env $(KUBE_ENV) $(HELM_ENV) helm upgrade --install dequeue ./manifest/dequeue-app -f manifest/dequeue-app/values/develop.yaml --set image.repository=local/dequeue --set image.tag=$(IMAGE_TAG)
+	env $(KUBE_ENV) $(HELM_ENV) helm upgrade --install dequeue-app ./manifest/dequeue-app -f manifest/dequeue-app/values/develop.yaml --set image.repository=local/dequeue --set image.tag=$(IMAGE_TAG)
 
 cluster-clean:
-	env $(KUBE_ENV) $(HELM_ENV) helm uninstall --ignore-not-found dequeue
-	env $(KUBE_ENV) $(HELM_ENV) helm uninstall --ignore-not-found enqueue
+	env $(KUBE_ENV) $(HELM_ENV) helm uninstall --ignore-not-found dequeue-app
+	env $(KUBE_ENV) $(HELM_ENV) helm uninstall --ignore-not-found enqueue-app
 	env $(KUBE_ENV) $(HELM_ENV) helm uninstall --ignore-not-found postgresql
 	env $(KUBE_ENV) $(HELM_ENV) helm uninstall --ignore-not-found elasticmq
 	env $(KUBE_ENV) $(HELM_ENV) helm uninstall --ignore-not-found keda -n keda

@@ -1,3 +1,6 @@
 image:
   repository: local/enqueue
   tag: dev
+
+mode: http
+httpPort: 8080

@@ -19,7 +19,6 @@ func TestSampleAppLayoutUsesSampleAppPaths(t *testing.T) {
 		"manifest/dequeue-app/Chart.yaml",
 		"manifest/argocd/Chart.yaml",
 		"manifest/infra-bundle/Chart.yaml",
-		"manifest/app-bundle/Chart.yaml",
 		"argocd/applicationsets/env-bundle.yaml",
 		"argocd/namespaces/sample-applicationset.yaml",
 		"argocd/projects/sample-app.yaml",
@@ -54,6 +53,8 @@ func TestMakefileReferencesSampleAppAssets(t *testing.T) {
 		"helm-deps-argocd:",
 		"install-argocd:",
 		"argocd-ready:",
+		"helm upgrade --install enqueue-app",
+		"helm upgrade --install dequeue-app",
 	}
 
 	for _, snippet := range requiredSnippets {
@@ -71,8 +72,14 @@ func TestMakefileReferencesSampleAppAssets(t *testing.T) {
 			t.Fatalf("expected Makefile to define target %q", target)
 		}
 	}
-	if !strings.Contains(content, "--set mode=http") {
-		t.Fatalf("expected Makefile to define an http-mode enqueue install command")
+	for _, snippet := range []string{
+		"helm upgrade enqueue-app",
+		"helm uninstall --ignore-not-found enqueue-app",
+		"helm uninstall --ignore-not-found dequeue-app",
+	} {
+		if !strings.Contains(content, snippet) {
+			t.Fatalf("expected Makefile to reference %q", snippet)
+		}
 	}
 }
 
@@ -94,6 +101,8 @@ func TestReadmeMentionsArgoCDFlow(t *testing.T) {
 		"argocd/projects/sample-app.yaml",
 		"make install-argocd",
 		"make argocd-ready",
+		"enqueue-app",
+		"dequeue-app",
 	}
 
 	for _, snippet := range requiredSnippets {
@@ -139,6 +148,21 @@ func TestApplicationSetEnablesServerSideApplyForKEDAOperator(t *testing.T) {
 	content := string(applicationSet)
 	if !strings.Contains(content, "name: keda-operator") {
 		t.Fatalf("expected ApplicationSet to define keda-operator")
+	}
+	for _, snippet := range []string{
+		"name: enqueue-app",
+		"path: \"{{ .chartPath }}\"",
+		"releaseName: \"{{ .releaseName }}\"",
+		"name: dequeue-app",
+		"chartPath: manifest/enqueue-app",
+		"chartPath: manifest/dequeue-app",
+	} {
+		if !strings.Contains(content, snippet) {
+			t.Fatalf("expected ApplicationSet to reference %q", snippet)
+		}
+	}
+	if strings.Contains(content, "manifest/app-bundle") {
+		t.Fatalf("expected ApplicationSet to stop referencing manifest/app-bundle")
 	}
 	if !strings.Contains(content, "serverSideApply: 'true'") {
 		t.Fatalf("expected keda-operator generator element to enable server-side apply")

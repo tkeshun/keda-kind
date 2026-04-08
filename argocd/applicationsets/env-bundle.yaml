@@ -16,6 +16,7 @@ spec:
             targetRevision: HEAD
             chartPath: manifest/keda-operator
             valuesFile: values/develop.yaml
+            releaseName: keda
             serverSideApply: 'true'
             destinationServer: https://kubernetes.default.svc
             destinationNamespace: keda
@@ -24,14 +25,25 @@ spec:
             targetRevision: HEAD
             chartPath: manifest/infra-bundle
             valuesFile: values/develop.yaml
+            releaseName: infra-core
             serverSideApply: 'false'
             destinationServer: https://kubernetes.default.svc
             destinationNamespace: default
-          - name: sample-app
+          - name: enqueue-app
             repoURL: https://github.com/tkeshun/keda-kind.git
             targetRevision: HEAD
-            chartPath: manifest/app-bundle
+            chartPath: manifest/enqueue-app
             valuesFile: values/develop.yaml
+            releaseName: enqueue-app
+            serverSideApply: 'false'
+            destinationServer: https://kubernetes.default.svc
+            destinationNamespace: default
+          - name: dequeue-app
+            repoURL: https://github.com/tkeshun/keda-kind.git
+            targetRevision: HEAD
+            chartPath: manifest/dequeue-app
+            valuesFile: values/develop.yaml
+            releaseName: dequeue-app
             serverSideApply: 'false'
             destinationServer: https://kubernetes.default.svc
             destinationNamespace: default
@@ -49,6 +61,7 @@ spec:
         targetRevision: "{{ .targetRevision }}"
         path: "{{ .chartPath }}"
         helm:
+          releaseName: "{{ .releaseName }}"
           valueFiles:
             - "{{ .valuesFile }}"
       destination:
