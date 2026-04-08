@@ -12,24 +12,27 @@ spec:
     - list:
         elements:
           - name: keda-operator
-            repoURL: https://example.invalid/replace-with-your-git-remote.git
+            repoURL: https://github.com/tkeshun/keda-kind.git
             targetRevision: HEAD
             chartPath: manifest/keda-operator
             valuesFile: values/develop.yaml
+            serverSideApply: 'true'
             destinationServer: https://kubernetes.default.svc
             destinationNamespace: keda
           - name: infra-core
-            repoURL: https://example.invalid/replace-with-your-git-remote.git
+            repoURL: https://github.com/tkeshun/keda-kind.git
             targetRevision: HEAD
             chartPath: manifest/infra-bundle
             valuesFile: values/develop.yaml
+            serverSideApply: 'false'
             destinationServer: https://kubernetes.default.svc
             destinationNamespace: default
           - name: sample-app
-            repoURL: https://example.invalid/replace-with-your-git-remote.git
+            repoURL: https://github.com/tkeshun/keda-kind.git
             targetRevision: HEAD
             chartPath: manifest/app-bundle
             valuesFile: values/develop.yaml
+            serverSideApply: 'false'
             destinationServer: https://kubernetes.default.svc
             destinationNamespace: default
   template:
@@ -57,3 +60,4 @@ spec:
           selfHeal: true
         syncOptions:
           - CreateNamespace=true
+          - ServerSideApply={{ .serverSideApply }}

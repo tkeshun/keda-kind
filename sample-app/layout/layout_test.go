@@ -125,3 +125,25 @@ func TestComposeReferencesSampleAppDockerfiles(t *testing.T) {
 		}
 	}
 }
+
+func TestApplicationSetEnablesServerSideApplyForKEDAOperator(t *testing.T) {
+	t.Parallel()
+
+	root := filepath.Clean(filepath.Join("..", ".."))
+
+	applicationSet, err := os.ReadFile(filepath.Join(root, "argocd", "applicationsets", "env-bundle.yaml"))
+	if err != nil {
+		t.Fatalf("read ApplicationSet: %v", err)
+	}
+
+	content := string(applicationSet)
+	if !strings.Contains(content, "name: keda-operator") {
+		t.Fatalf("expected ApplicationSet to define keda-operator")
+	}
+	if !strings.Contains(content, "serverSideApply: 'true'") {
+		t.Fatalf("expected keda-operator generator element to enable server-side apply")
+	}
+	if !strings.Contains(content, "- ServerSideApply={{ .serverSideApply }}") {
+		t.Fatalf("expected ApplicationSet sync options to template ServerSideApply")
+	}
+}

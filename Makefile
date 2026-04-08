@@ -99,7 +99,6 @@ argocd-ready:
 	env $(KUBE_ENV) kubectl rollout status deployment/argocd-redis -n argocd --timeout=180s
 	env $(KUBE_ENV) kubectl rollout status deployment/argocd-applicationset-controller -n argocd --timeout=180s
 	env $(KUBE_ENV) kubectl rollout status deployment/argocd-notifications-controller -n argocd --timeout=180s
-	env $(KUBE_ENV) kubectl rollout status deployment/argocd-commit-server -n argocd --timeout=180s
 	env $(KUBE_ENV) kubectl rollout status statefulset/argocd-application-controller -n argocd --timeout=180s
 
 cluster-restore: install-elasticmq install-postgresql install-keda install-enqueue install-dequeue

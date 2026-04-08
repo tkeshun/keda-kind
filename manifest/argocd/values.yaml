@@ -9,6 +9,7 @@ argo-cd:
       server.insecure: true
       application.namespaces: sample-applicationset
       applicationsetcontroller.namespaces: sample-applicationset
+      applicationsetcontroller.enable.scm.providers: false
   server:
     service:
       type: ClusterIP

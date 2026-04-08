@@ -173,6 +173,8 @@
   - [ ] `kubectl describe application sample-app -n sample-applicationset`
 - [ ] ArgoCD UI から ApplicationSet 生成結果を確認する
   - [ ] `kubectl -n argocd port-forward svc/argocd-server 8081:80`
+  - [ ] `kubectl -n argocd get secret argocd-initial-admin-secret -o
+  jsonpath='{.data.password}' | base64 -d; echo`
   - [ ] UI で `sample-applicationset` namespace の `infra-core` / `keda-operator` / `sample-app` Application が表示されることを確認する
   - [ ] UI で各 Application の Sync Status / Health Status を確認する
   - [ ] UI の resource tree で `infra-core` / `keda-operator` / `sample-app` 配下のリソースが期待 namespace に作られていることを確認する
